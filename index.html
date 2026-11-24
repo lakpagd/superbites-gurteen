@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital TV Menu Board</title>
+    <!-- Load Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind Theme Defaults -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body id="app-body" class="font-sans antialiased min-h-screen flex flex-col justify-between overflow-x-hidden transition-colors duration-500 bg-zinc-950 text-zinc-100 selection:bg-amber-500 selection:text-zinc-950">
+
+    <!-- ========================================================= -->
+    <!-- TOP HEADER BAR: Brand Identity, Screen Switcher & Clock   -->
+    <!-- ========================================================= -->
+    <header id="tv-header" class="w-full px-4 sm:px-6 lg:px-8 py-3.5 lg:py-4 border-b border-zinc-800/80 transition-colors duration-500 relative">
+        <div class="max-w-[1920px] mx-auto flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3.5">
+            
+            <!-- Brand Logo & Name -->
+            <div class="flex items-center justify-between w-full xl:w-auto gap-3.5">
+                <div class="flex items-center gap-3.5">
+                    <div id="brand-icon-wrap" class="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-amber-500 text-zinc-950 flex items-center justify-center shadow-lg shrink-0 transition-colors duration-500">
+                        <!-- Inline SVG Flame / Takeaway Mark -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 id="display-brand-name" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight uppercase leading-none">
+                            SB'S TAKEAWAY
+                        </h1>
+                        <p id="display-brand-tagline" class="text-[11px] sm:text-xs lg:text-sm font-semibold tracking-widest uppercase opacity-75 mt-1">
+                            Fresh Cut Chips • Kebabs • Homemade Burgers • Fresh Dough Pizzas
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Order Phone Pill (Mobile inline) -->
+                <div id="phone-badge-mobile" class="xl:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-zinc-950 font-black text-xs sm:text-sm tracking-tight shrink-0 shadow">
+                    <span>📞</span>
+                    <span class="display-phone-number">071 919 6670</span>
+                </div>
+            </div>
+
+            <!-- TV Screen Switcher Pills (For 1-TV Auto-Rotate or 3-TV Lock Mode) -->
+            <nav aria-label="Menu Boards" class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full xl:w-auto justify-start xl:justify-center">
+                <button type="button" data-screen="0" class="screen-nav-btn px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition cursor-pointer border">
+                    1. Chips &amp; Burgers
+                </button>
+                <button type="button" data-screen="1" class="screen-nav-btn px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition cursor-pointer border">
+                    2. Kebabs, Wraps &amp; Sides
+                </button>
+                <button type="button" data-screen="2" class="screen-nav-btn px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition cursor-pointer border">
+                    3. Pizzas &amp; Meal Deals
+                </button>
+                <button id="btn-toggle-rotate" type="button" title="Pause or Resume Auto-Rotation (Space)" class="px-3 py-2 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/80 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                    <span id="rotate-indicator-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="rotate-label">Auto</span>
+                </button>
+            </nav>
+
+            <!-- Phone Order Callout, Live Clock & Quick Controls -->
+            <div class="flex items-center justify-between xl:justify-end w-full xl:w-auto gap-3 sm:gap-4">
+                <!-- Order Phone Callout (Desktop / TV) -->
+                <div id="phone-badge-desktop" class="hidden xl:flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-500 text-zinc-950 font-black text-base lg:text-lg tracking-tight shadow-lg shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span class="display-phone-number">071 919 6670</span>
+                </div>
+
+                <!-- Live Digital Clock -->
+                <div class="text-left xl:text-right">
+                    <div id="live-clock" class="text-lg sm:text-xl lg:text-2xl font-extrabold tabular-nums tracking-tight leading-none">
+                        12:00
+                    </div>
+                    <div id="live-date" class="text-[11px] font-medium opacity-65 mt-0.5 uppercase tracking-wider">
+                        Sunday, 22 Nov
+                    </div>
+                </div>
+
+                <!-- Action Toolbar (Auto-fades when TV is idle) -->
+                <div id="control-toolbar" class="flex items-center gap-2 transition-opacity duration-500">
+                    <button id="btn-cycle-theme" type="button" title="Switch Color Theme (Press T)" class="p-2.5 sm:p-3 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 transition flex items-center gap-2 text-xs sm:text-sm font-semibold shadow-md cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+                        </svg>
+                        <span class="hidden sm:inline">Color</span>
+                    </button>
+
+                    <button id="btn-open-editor" type="button" title="Customize Menu (Press E)" class="p-2.5 sm:p-3 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 transition flex items-center gap-2 text-xs sm:text-sm font-semibold shadow-md cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span class="hidden sm:inline">Edit</span>
+                    </button>
+
+                    <button id="btn-fullscreen" type="button" title="Toggle TV Fullscreen (Press F)" class="p-2.5 sm:p-3 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80 transition shadow-md cursor-pointer" aria-label="Toggle Fullscreen">
+                        <svg id="icon-fs-enter" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                        <svg id="icon-fs-exit" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen Auto-Rotation Progress Line -->
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-white/5 overflow-hidden">
+            <div id="screen-progress" class="h-full bg-amber-500 transition-all duration-100 ease-linear" style="width: 0%;"></div>
+        </div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- MAIN MENU DISPLAY BOARD: Multi-Screen Widescreen TV Grid  -->
+    <!-- ========================================================= -->
+    <main class="flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-5 flex flex-col">
+
+        <!-- SCREEN 1: CHIPS, BURGERS, FISH & CHIPS, SIDES & DRINKS -->
+        <div id="screen-0" class="tv-screen grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 flex-1">
+            <section id="s0-col-left" class="lg:col-span-4 flex flex-col gap-4"></section>
+            <section id="s0-col-center" class="lg:col-span-4 flex flex-col gap-4"></section>
+            <section id="s0-col-right" class="lg:col-span-4 flex flex-col gap-4">
+                <!-- Dynamic Rotating Spotlight Panel -->
+                <div id="promo-card" class="relative rounded-3xl p-5 lg:p-6 overflow-hidden border shadow-2xl flex flex-col justify-between min-h-[210px] transition-all duration-500">
+                    <div id="promo-glow" class="pointer-events-none absolute -top-20 -right-20 w-60 h-60 rounded-full blur-3xl opacity-25 bg-amber-500 transition-colors duration-700"></div>
+                    <div class="relative z-10 flex items-center justify-between gap-2">
+                        <span id="promo-eyebrow" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-amber-500 text-zinc-950">
+                            Top Takeaway Deal
+                        </span>
+                        <div id="promo-dots" class="flex items-center gap-1.5"></div>
+                    </div>
+                    <div class="relative z-10 my-3">
+                        <h2 id="promo-title" class="text-2xl sm:text-3xl font-black tracking-tight leading-tight">Munchy Box</h2>
+                        <p id="promo-desc" class="mt-1.5 text-xs sm:text-sm lg:text-base opacity-80 leading-snug">
+                            Doner Meat, Chicken Nuggets, Chicken Goujons, Onion Rings, Fresh Salad &amp; Chips.
+                        </p>
+                    </div>
+                    <div class="relative z-10 flex items-end justify-between gap-4 pt-2.5 border-t border-white/10">
+                        <div id="promo-footnote" class="text-xs font-semibold uppercase tracking-wider opacity-75">
+                            Call 071 919 6670 to Order
+                        </div>
+                        <div id="promo-price" class="text-3xl sm:text-4xl font-black tracking-tight tabular-nums text-amber-400">
+                            €9.95
+                        </div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-white/10">
+                        <div id="promo-progress" class="h-full bg-amber-500 transition-all duration-100 ease-linear" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div id="s0-col-right-cats" class="flex flex-col gap-4 flex-1"></div>
+            </section>
+        </div>
+
+        <!-- SCREEN 2: FRESH KEBABS, CHICKEN, WRAPS, KIDS MEALS, HOGIES & SAUCES -->
+        <div id="screen-1" class="tv-screen hidden grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 flex-1">
+            <section id="s1-col-left" class="lg:col-span-4 flex flex-col gap-4"></section>
+            <section id="s1-col-center" class="lg:col-span-4 flex flex-col gap-4"></section>
+            <section id="s1-col-right" class="lg:col-span-4 flex flex-col gap-4"></section>
+        </div>
+
+        <!-- SCREEN 3: FRESH DOUGH PIZZAS (10" / 12" / 16") & 15 VALUE MEAL DEALS -->
+        <div id="screen-2" class="tv-screen hidden grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 flex-1">
+            <!-- Left 6 Columns: Pizzas Table + Garlic Bread + Create Your Own -->
+            <section id="s2-pizzas-col" class="lg:col-span-6 flex flex-col gap-4"></section>
+            <!-- Right 6 Columns: 15 Meal Deals Grid -->
+            <section id="s2-deals-col" class="lg:col-span-6 flex flex-col gap-4"></section>
+        </div>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- BOTTOM FOOTER BAR: Phone Callout, Tags & Allergen Info    -->
+    <!-- ========================================================= -->
+    <footer id="tv-footer" class="w-full px-4 sm:px-6 lg:px-8 py-3 border-t border-zinc-800/80 transition-colors duration-500">
+        <div class="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2.5 text-xs sm:text-sm">
+            <!-- Call to Order & Dietary Legend -->
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 font-semibold">
+                <span class="px-3 py-1 rounded-lg bg-amber-500 text-zinc-950 font-black tracking-wide text-xs sm:text-sm">
+                    📞 Call <span class="display-phone-number">071 919 6670</span> to place orders!
+                </span>
+                <span class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs">★ Popular</span>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs">V Vegetarian</span>
+                <span class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs">🌶 Spicy</span>
+            </div>
+
+            <!-- Custom Footer Announcement -->
+            <div id="display-footer-note" class="text-center md:text-right opacity-75 font-medium">
+                All Beef Burgers Homemade • All Pizzas Made with Fresh Dough • Please inform staff of any allergies
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE-OVER CUSTOMIZATION EDITOR MODAL                     -->
+    <!-- ========================================================= -->
+    <div id="editor-backdrop" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex justify-end transition-opacity">
+        <aside id="editor-panel" class="w-full max-w-2xl bg-zinc-900 text-zinc-100 h-full shadow-2xl border-l border-zinc-800 flex flex-col overflow-hidden">
+            
+            <!-- Editor Header -->
+            <div class="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
+                <div>
+                    <h2 class="text-xl font-extrabold tracking-tight text-white">TV Menu Customizer</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Changes update the TV board instantly &amp; save automatically.</p>
+                </div>
+                <button id="btn-close-editor" type="button" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition cursor-pointer" aria-label="Close Editor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Editor Navigation Tabs -->
+            <div class="px-6 pt-3 border-b border-zinc-800 flex gap-2 overflow-x-auto bg-zinc-950/30">
+                <button type="button" data-tab="general" class="editor-tab px-3.5 py-2.5 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-amber-500 text-amber-400 whitespace-nowrap cursor-pointer">
+                    Branding &amp; TV
+                </button>
+                <button type="button" data-tab="items" class="editor-tab px-3.5 py-2.5 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 whitespace-nowrap cursor-pointer">
+                    Menu Items
+                </button>
+                <button type="button" data-tab="pizzas" class="editor-tab px-3.5 py-2.5 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 whitespace-nowrap cursor-pointer">
+                    Pizzas
+                </button>
+                <button type="button" data-tab="deals" class="editor-tab px-3.5 py-2.5 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 whitespace-nowrap cursor-pointer">
+                    Meal Deals
+                </button>
+                <button type="button" data-tab="promos" class="editor-tab px-3.5 py-2.5 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 whitespace-nowrap cursor-pointer">
+                    Spotlight
+                </button>
+            </div>
+
+            <!-- Editor Body (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+                <!-- TAB 1: BRANDING & THEME -->
+                <div id="tab-general" class="space-y-5">
+                    <!-- Theme Selector -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2.5">Display Color Theme</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="theme-buttons">
+                            <button type="button" data-theme="takeaway" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-emerald-950 border-amber-500">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-emerald-800 border border-lime-400/50"></span>
+                                    <span class="w-4 h-4 rounded-full bg-yellow-400"></span>
+                                    <span class="w-4 h-4 rounded-full bg-red-600"></span>
+                                </div>
+                                <div class="text-xs font-bold text-yellow-300">Takeaway Green</div>
+                            </button>
+                            <button type="button" data-theme="leaflet" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-lime-100 border-zinc-700">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-lime-300 border border-lime-500"></span>
+                                    <span class="w-4 h-4 rounded-full bg-yellow-400"></span>
+                                    <span class="w-4 h-4 rounded-full bg-red-600"></span>
+                                </div>
+                                <div class="text-xs font-bold text-emerald-950">Bright Leaflet</div>
+                            </button>
+                            <button type="button" data-theme="crimson" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-neutral-950 border-zinc-700">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-red-600"></span>
+                                    <span class="w-4 h-4 rounded-full bg-yellow-400"></span>
+                                </div>
+                                <div class="text-xs font-bold text-white">Grill Red &amp; Gold</div>
+                            </button>
+                            <button type="button" data-theme="obsidian" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-zinc-950 border-zinc-700">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-zinc-900 border border-zinc-700"></span>
+                                    <span class="w-4 h-4 rounded-full bg-amber-500"></span>
+                                </div>
+                                <div class="text-xs font-bold text-white">Obsidian Gold</div>
+                            </button>
+                            <button type="button" data-theme="neon" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-slate-950 border-zinc-700">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-slate-900 border border-slate-700"></span>
+                                    <span class="w-4 h-4 rounded-full bg-emerald-400"></span>
+                                </div>
+                                <div class="text-xs font-bold text-slate-100">Neon Street</div>
+                            </button>
+                            <button type="button" data-theme="daylight" class="theme-btn p-3 rounded-xl border-2 text-left transition cursor-pointer bg-stone-100 border-zinc-700">
+                                <div class="flex gap-1.5 mb-2">
+                                    <span class="w-4 h-4 rounded-full bg-white border border-stone-300"></span>
+                                    <span class="w-4 h-4 rounded-full bg-rose-600"></span>
+                                </div>
+                                <div class="text-xs font-bold text-stone-900">Crisp Daylight</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Restaurant Info Fields -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="input-brand-name" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Takeaway Name</label>
+                            <input id="input-brand-name" type="text" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-semibold">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="input-brand-tagline" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Subtitle / Tagline</label>
+                            <input id="input-brand-tagline" type="text" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="input-phone" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Order Phone Number</label>
+                            <input id="input-phone" type="text" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label for="input-currency" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Currency Symbol</label>
+                            <select id="input-currency" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-semibold">
+                                <option value="€">€ (Euro)</option>
+                                <option value="£">£ (Pound Sterling)</option>
+                                <option value="$">$ (Dollar)</option>
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="input-rotate-sec" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">TV Screen Auto-Rotate</label>
+                            <select id="input-rotate-sec" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-semibold">
+                                <option value="0">Off (Lock single screen)</option>
+                                <option value="12">Every 12 seconds</option>
+                                <option value="18">Every 18 seconds</option>
+                                <option value="25">Every 25 seconds</option>
+                                <option value="40">Every 40 seconds</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="input-footer-note" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Footer Message (Allergens / Freshness Note)</label>
+                            <input id="input-footer-note" type="text" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- TV Display Tip -->
+                    <div class="p-4 rounded-2xl bg-zinc-800/60 border border-zinc-700/70 text-xs text-zinc-300 space-y-1.5">
+                        <div class="font-bold text-amber-400 uppercase tracking-wider">Takeaway TV Setup Tips</div>
+                        <p>• <strong>Single TV:</strong> Leave Auto-Rotate on to cycle through Chips/Burgers, Kebabs/Wraps, and Pizzas/Meal Deals.</p>
+                        <p>• <strong>Multiple TVs:</strong> Open this page on each TV, click Screen 1, 2, or 3, and click <strong>Auto / Locked</strong> (or press <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">Space</kbd>) to lock each TV to its own menu board.</p>
+                        <p>• Press <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">F</kbd> for fullscreen, <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">T</kbd> to switch colors, <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">1</kbd> <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">2</kbd> <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">3</kbd> to switch screens, and <kbd class="px-1.5 py-0.5 rounded bg-zinc-700 text-white font-mono">E</kbd> to edit.</p>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MENU ITEMS -->
+                <div id="tab-items" class="hidden space-y-5">
+                    <!-- Category Selector -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="select-edit-category" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Select Menu Category</label>
+                            <select id="select-edit-category" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-bold">
+                                <!-- Populated via JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="input-category-title" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Category Heading</label>
+                            <input id="input-category-title" type="text" class="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-sm font-semibold">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="input-category-subtitle" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Category Subtitle / Note (Optional)</label>
+                            <input id="input-category-subtitle" type="text" placeholder="e.g. All our Beef Burgers are Homemade" class="w-full px-4 py-2.5 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-amber-500 text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Add New Item Form -->
+                    <div class="p-4 rounded-2xl bg-zinc-800/50 border border-zinc-700/80 space-y-3">
+                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400">+ Add Item to Category</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <input id="new-item-name" type="text" placeholder="Item name (e.g. Truffle Burger)" class="sm:col-span-2 px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-amber-500">
+                            <input id="new-item-price" type="text" placeholder="Price (e.g. 12.50)" class="px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <input id="new-item-desc" type="text" placeholder="Short appetizing description..." class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-amber-500">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 cursor-pointer">
+                                    <input type="checkbox" value="popular" class="new-item-tag accent-amber-500"> ★ Popular
+                                </label>
+                                <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 cursor-pointer">
+                                    <input type="checkbox" value="vegan" class="new-item-tag accent-emerald-500"> V Veg
+                                </label>
+                                <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 cursor-pointer">
+                                    <input type="checkbox" value="spicy" class="new-item-tag accent-rose-500"> 🌶 Spicy
+                                </label>
+                                <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 cursor-pointer">
+                                    <input type="checkbox" value="gf" class="new-item-tag accent-sky-500"> GF
+                                </label>
+                            </div>
+                            <button id="btn-add-item" type="button" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Existing Items List -->
+                    <div id="editor-items-list" class="space-y-3">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: PIZZAS (10" / 12" / 16") -->
+                <div id="tab-pizzas" class="hidden space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-zinc-800/50 border border-zinc-700/80">
+                        <div>
+                            <label for="input-garlic-bread" class="block text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">Garlic Bread Banner</label>
+                            <input id="input-garlic-bread" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm font-semibold focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label for="input-pizza-subtitle" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Pizza Subtitle</label>
+                            <input id="input-pizza-subtitle" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="input-pizza-toppings" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Extra Toppings / Create Your Own Note</label>
+                            <input id="input-pizza-toppings" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="text-xs font-bold uppercase tracking-wider text-zinc-400">Fresh Dough Pizzas (10" / 12" / 16")</div>
+                        <button id="btn-add-pizza" type="button" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                            + Add Pizza
+                        </button>
+                    </div>
+                    <div id="editor-pizzas-list" class="space-y-3"></div>
+                </div>
+
+                <!-- TAB 4: MEAL DEALS -->
+                <div id="tab-deals" class="hidden space-y-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-zinc-400">Takeaway Meal Deals (Screen 3)</div>
+                            <p class="text-xs text-zinc-500 mt-0.5">Edit any combo meal or mark a deal as Featured.</p>
+                        </div>
+                        <button id="btn-add-deal" type="button" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                            + Add Deal
+                        </button>
+                    </div>
+                    <div id="editor-deals-list" class="space-y-3"></div>
+                </div>
+
+                <!-- TAB 5: SPOTLIGHT PROMOS -->
+                <div id="tab-promos" class="hidden space-y-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-zinc-400">Rotating Spotlight Slides</div>
+                            <p class="text-xs text-zinc-500 mt-0.5">Slides automatically rotate every 8 seconds on the TV board.</p>
+                        </div>
+                        <button id="btn-add-promo" type="button" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                            + Add Slide
+                        </button>
+                    </div>
+                    <div id="editor-promos-list" class="space-y-4">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Editor Footer Actions -->
+            <div class="px-6 py-4 border-t border-zinc-800 bg-zinc-950/70 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button id="btn-reset-request" type="button" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-rose-950 hover:text-rose-300 text-zinc-400 text-xs font-bold transition cursor-pointer">
+                        Reset to Sample Menu
+                    </button>
+                    <!-- Inline Confirmation (No native confirm()) -->
+                    <div id="reset-confirm-box" class="hidden flex items-center gap-2">
+                        <span class="text-xs text-rose-400 font-semibold">Reset all?</span>
+                        <button id="btn-reset-confirm" type="button" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer">Yes</button>
+                        <button id="btn-reset-cancel" type="button" class="px-3 py-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-bold cursor-pointer">No</button>
+                    </div>
+                </div>
+                <button id="btn-done-editor" type="button" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-extrabold transition cursor-pointer">
+                    Done Viewing
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TOAST NOTIFICATION MESSAGE BOX                            -->
+    <!-- ========================================================= -->
+    <div id="toast-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-2xl bg-zinc-900 text-white border border-zinc-700 shadow-2xl text-sm font-semibold flex items-center gap-2.5 opacity-0 pointer-events-none transition-all duration-300 translate-y-4">
+        <span id="toast-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+        <span id="toast-message">Saved!</span>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- APPLICATION LOGIC & STATE MANAGEMENT                      -->
+    <!-- ========================================================= -->
+    <script>
+        (function () {
+            'use strict';
+
+            // ---------------------------------------------------------
+            // 1. DEFAULT TAKEAWAY MENU DATA & THEME DEFINITIONS
+            // ---------------------------------------------------------
+            const STORAGE_KEY = 'tv_menu_board_takeaway_v3';
+            const LEGACY_STORAGE_KEY = 'tv_menu_board_takeaway_v2';
+
+            const THEMES = {
+                takeaway: {
+                    label: 'Takeaway Green & Gold',
+                    body: 'bg-emerald-950 text-lime-50',
+                    header: 'border-yellow-400/35 bg-emerald-950/95',
+                    footer: 'border-yellow-400/35 bg-emerald-950/95',
+                    brandIcon: 'bg-yellow-400 text-emerald-950',
+                    phoneBadge: 'bg-yellow-400 text-emerald-950',
+                    card: 'bg-emerald-900/70 border-lime-400/25 shadow-lg',
+                    categoryTitle: 'bg-yellow-400 text-emerald-950 px-3 py-1 rounded-xl inline-block shadow-sm',
+                    categoryDivider: 'border-lime-400/20',
+                    itemRowBorder: 'border-emerald-800/80',
+                    itemPrice: 'text-yellow-300',
+                    dealCard: 'bg-emerald-950/75 border-lime-500/25',
+                    dealCardFeatured: 'bg-gradient-to-br from-yellow-400/20 via-emerald-900 to-emerald-950 border-yellow-400',
+                    dealPriceBadge: 'bg-red-600 text-yellow-300 border border-yellow-400/50',
+                    navActive: 'bg-yellow-400 text-emerald-950 border-yellow-400 shadow',
+                    navIdle: 'bg-emerald-900/80 text-lime-100 border-emerald-800 hover:border-yellow-400/60',
+                    promoCard: 'bg-gradient-to-br from-emerald-900 via-emerald-950 to-red-950/70 border-yellow-400/60 text-lime-50',
+                    promoGlow: 'bg-yellow-400',
+                    promoEyebrow: 'bg-red-600 text-yellow-300',
+                    promoPrice: 'text-yellow-300',
+                    promoProgress: 'bg-yellow-400',
+                    screenProgress: 'bg-yellow-400',
+                    dotActive: 'bg-yellow-400',
+                    dotIdle: 'bg-emerald-800'
+                },
+                leaflet: {
+                    label: 'Bright Leaflet (Yellow & Green)',
+                    body: 'bg-[#d8e7b5] text-emerald-950',
+                    header: 'border-yellow-500 bg-yellow-400 text-emerald-950 shadow-sm',
+                    footer: 'border-yellow-500 bg-yellow-400 text-emerald-950',
+                    brandIcon: 'bg-red-600 text-yellow-300',
+                    phoneBadge: 'bg-red-600 text-yellow-300',
+                    card: 'bg-[#eef6dc] border-lime-400/80 shadow-md',
+                    categoryTitle: 'bg-yellow-400 text-emerald-950 px-3 py-1 rounded-xl inline-block shadow-sm',
+                    categoryDivider: 'border-lime-300',
+                    itemRowBorder: 'border-lime-300/70',
+                    itemPrice: 'text-red-700',
+                    dealCard: 'bg-white/90 border-lime-400/80 shadow-sm',
+                    dealCardFeatured: 'bg-yellow-100 border-red-500 shadow-md',
+                    dealPriceBadge: 'bg-red-600 text-yellow-300',
+                    navActive: 'bg-emerald-950 text-yellow-300 border-emerald-950',
+                    navIdle: 'bg-yellow-300/80 text-emerald-950 border-emerald-950/20 hover:bg-yellow-200',
+                    promoCard: 'bg-gradient-to-br from-emerald-900 via-emerald-950 to-green-950 border-yellow-400 text-white',
+                    promoGlow: 'bg-yellow-400',
+                    promoEyebrow: 'bg-yellow-400 text-emerald-950',
+                    promoPrice: 'text-yellow-300',
+                    promoProgress: 'bg-yellow-400',
+                    screenProgress: 'bg-red-600',
+                    dotActive: 'bg-yellow-400',
+                    dotIdle: 'bg-emerald-700'
+                },
+                crimson: {
+                    label: 'Grill Red & Gold',
+                    body: 'bg-neutral-950 text-neutral-100',
+                    header: 'border-red-900/60 bg-gradient-to-r from-neutral-950 via-red-950/40 to-neutral-950',
+                    footer: 'border-red-900/60 bg-neutral-950',
+                    brandIcon: 'bg-red-600 text-yellow-300',
+                    phoneBadge: 'bg-red-600 text-yellow-300',
+                    card: 'bg-neutral-900/85 border-red-900/40',
+                    categoryTitle: 'text-yellow-400',
+                    categoryDivider: 'border-red-900/50',
+                    itemRowBorder: 'border-neutral-800',
+                    itemPrice: 'text-yellow-400',
+                    dealCard: 'bg-neutral-950/85 border-neutral-800',
+                    dealCardFeatured: 'bg-gradient-to-br from-red-700/35 via-neutral-900 to-neutral-950 border-yellow-400/80',
+                    dealPriceBadge: 'bg-red-600 text-yellow-300',
+                    navActive: 'bg-red-600 text-yellow-300 border-red-500',
+                    navIdle: 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:border-red-700',
+                    promoCard: 'bg-gradient-to-br from-red-950 via-neutral-900 to-neutral-950 border-red-500/60 text-white',
+                    promoGlow: 'bg-red-500',
+                    promoEyebrow: 'bg-yellow-400 text-neutral-950',
+                    promoPrice: 'text-yellow-400',
+                    promoProgress: 'bg-yellow-400',
+                    screenProgress: 'bg-red-500',
+                    dotActive: 'bg-yellow-400',
+                    dotIdle: 'bg-neutral-700'
+                },
+                obsidian: {
+                    label: 'Obsidian Gold',
+                    body: 'bg-zinc-950 text-zinc-100',
+                    header: 'border-zinc-800/80 bg-zinc-950/95',
+                    footer: 'border-zinc-800/80 bg-zinc-950/95',
+                    brandIcon: 'bg-amber-400 text-zinc-950',
+                    phoneBadge: 'bg-amber-400 text-zinc-950',
+                    card: 'bg-zinc-900/80 border-zinc-800/90',
+                    categoryTitle: 'text-amber-400',
+                    categoryDivider: 'border-zinc-800',
+                    itemRowBorder: 'border-zinc-800/70',
+                    itemPrice: 'text-amber-400',
+                    dealCard: 'bg-zinc-950/80 border-zinc-800',
+                    dealCardFeatured: 'bg-gradient-to-br from-amber-500/20 via-zinc-900 to-zinc-950 border-amber-400/70',
+                    dealPriceBadge: 'bg-amber-400 text-zinc-950',
+                    navActive: 'bg-amber-400 text-zinc-950 border-amber-400',
+                    navIdle: 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-600',
+                    promoCard: 'bg-gradient-to-br from-zinc-900 via-zinc-900 to-amber-950/50 border-amber-400/40 text-zinc-100',
+                    promoGlow: 'bg-amber-400',
+                    promoEyebrow: 'bg-amber-400 text-zinc-950',
+                    promoPrice: 'text-amber-400',
+                    promoProgress: 'bg-amber-400',
+                    screenProgress: 'bg-amber-400',
+                    dotActive: 'bg-amber-400',
+                    dotIdle: 'bg-zinc-700'
+                },
+                neon: {
+                    label: 'Neon Street',
+                    body: 'bg-slate-950 text-slate-100',
+                    header: 'border-slate-800/80 bg-slate-950/95',
+                    footer: 'border-slate-800/80 bg-slate-950/95',
+                    brandIcon: 'bg-emerald-400 text-slate-950',
+                    phoneBadge: 'bg-emerald-400 text-slate-950',
+                    card: 'bg-slate-900/80 border-slate-800',
+                    categoryTitle: 'text-emerald-400',
+                    categoryDivider: 'border-slate-800',
+                    itemRowBorder: 'border-slate-800/80',
+                    itemPrice: 'text-emerald-400',
+                    dealCard: 'bg-slate-950/80 border-slate-800',
+                    dealCardFeatured: 'bg-gradient-to-br from-emerald-500/20 via-slate-900 to-slate-950 border-emerald-400/70',
+                    dealPriceBadge: 'bg-emerald-400 text-slate-950',
+                    navActive: 'bg-emerald-400 text-slate-950 border-emerald-400',
+                    navIdle: 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-600',
+                    promoCard: 'bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/60 border-emerald-400/40 text-slate-100',
+                    promoGlow: 'bg-emerald-400',
+                    promoEyebrow: 'bg-emerald-400 text-slate-950',
+                    promoPrice: 'text-emerald-400',
+                    promoProgress: 'bg-emerald-400',
+                    screenProgress: 'bg-emerald-400',
+                    dotActive: 'bg-emerald-400',
+                    dotIdle: 'bg-slate-700'
+                },
+                daylight: {
+                    label: 'Crisp Daylight',
+                    body: 'bg-stone-100 text-stone-900',
+                    header: 'border-stone-200 bg-white/95',
+                    footer: 'border-stone-200 bg-white/95',
+                    brandIcon: 'bg-rose-600 text-white',
+                    phoneBadge: 'bg-rose-600 text-white',
+                    card: 'bg-white border-stone-200 shadow-sm',
+                    categoryTitle: 'text-rose-600',
+                    categoryDivider: 'border-stone-200',
+                    itemRowBorder: 'border-stone-200/80',
+                    itemPrice: 'text-rose-600',
+                    dealCard: 'bg-stone-50 border-stone-200',
+                    dealCardFeatured: 'bg-rose-50 border-rose-400',
+                    dealPriceBadge: 'bg-rose-600 text-white',
+                    navActive: 'bg-rose-600 text-white border-rose-600',
+                    navIdle: 'bg-stone-100 text-stone-700 border-stone-300 hover:border-stone-400',
+                    promoCard: 'bg-gradient-to-br from-stone-900 via-stone-900 to-rose-950 border-rose-500/40 text-white',
+                    promoGlow: 'bg-rose-500',
+                    promoEyebrow: 'bg-rose-500 text-white',
+                    promoPrice: 'text-rose-400',
+                    promoProgress: 'bg-rose-500',
+                    screenProgress: 'bg-rose-600',
+                    dotActive: 'bg-rose-400',
+                    dotIdle: 'bg-stone-600'
+                }
+            };
+
+            const DEFAULT_STATE = {
+                theme: 'takeaway',
+                brandName: "SB'S TAKEAWAY",
+                tagline: 'Fresh Cut Chips • Kebabs • Homemade Burgers • Fresh Dough Pizzas',
+                phone: '071 919 6670',
+                currency: '€',
+                autoRotateSec: 18,
+                footerNote: 'All Beef Burgers Homemade • All Pizzas Made with Fresh Dough • Please inform staff of any allergies',
+                categories: [
+                    // ---------------- SCREEN 1 ----------------
+                    {
+                        id: 'chips',
+                        screen: 0,
+                        column: 'left',
+                        compact: true,
+                        title: '1. Chips',
+                        subtitle: 'Fresh Cut Daily',
+                        items: [
+                            { id: 'c1', name: 'Large Fresh Cut Chips', price: '2.50', desc: '', tags: ['vegan'], soldOut: false },
+                            { id: 'c2', name: 'Chilli Chips', price: '3.70', desc: '', tags: ['spicy'], soldOut: false },
+                            { id: 'c3', name: 'Curry Chips', price: '3.70', desc: '', tags: [], soldOut: false },
+                            { id: 'c4', name: 'Curry Cheese Chips', price: '3.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'c5', name: 'Garlic Chips', price: '3.50', desc: '', tags: [], soldOut: false },
+                            { id: 'c6', name: 'Garlic Cheese Chips', price: '3.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'c7', name: 'Curry Bacon Cheese Chips', price: '4.95', desc: '', tags: [], soldOut: false },
+                            { id: 'c8', name: 'Potato Wedges', price: '2.95', desc: '', tags: ['vegan'], soldOut: false },
+                            { id: 'c9', name: 'Taco Chips', price: '4.95', desc: 'Beef Mince, Cheese & Taco Sauce', tags: ['popular'], soldOut: false },
+                            { id: 'c10', name: 'Tasty Chips', price: '4.95', desc: 'Large Tray, Bacon, Garlic & Cheese Chips', tags: [], soldOut: false },
+                            { id: 'c11', name: 'Chicken Curry Chips', price: '5.95', desc: '', tags: [], soldOut: false },
+                            { id: 'c12', name: 'Battered Sausage Tray', price: '4.50', desc: 'Battered Sausage, Chips & Curry Sauce', tags: [], soldOut: false },
+                            { id: 'c13', name: '4 in 1', price: '4.95', desc: 'Chips, Rice, Curry Sauce & Chicken', tags: ['popular'], soldOut: false },
+                            { id: 'c14', name: '3 in 1', price: '3.95', desc: 'Chips, Rice & Curry Sauce', tags: [], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'burgers',
+                        screen: 0,
+                        column: 'center',
+                        compact: true,
+                        title: '2. Burgers',
+                        subtitle: 'All our Beef Burgers are Homemade',
+                        items: [
+                            { id: 'b1', name: '1/4 Pounder Burger', price: '3.70', desc: '', tags: [], soldOut: false },
+                            { id: 'b2', name: '1/4 Pounder Cheese Burger', price: '3.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'b3', name: '1/4 Pounder with Bacon & Cheese', price: '4.60', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'b4', name: 'Hawaiian Burger', price: '4.50', desc: 'Cheese & Pineapple', tags: [], soldOut: false },
+                            { id: 'b5', name: '4 oz Double Decker Burger with Cheese', price: '4.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'b6', name: 'Chicken Burger', price: '3.80', desc: '', tags: [], soldOut: false },
+                            { id: 'b7', name: 'Chicken Fillet Burger', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'b8', name: 'Batter Burger', price: '2.95', desc: '', tags: [], soldOut: false },
+                            { id: 'b9', name: 'Veggie Burger', price: '3.50', desc: '', tags: ['vegan'], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'fish',
+                        screen: 0,
+                        column: 'center',
+                        compact: true,
+                        title: '6. Traditional Fish & Chips',
+                        subtitle: 'Made with Fresh Batter',
+                        items: [
+                            { id: 'f1', name: 'Fresh Cod & Chips', price: '7.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'f2', name: 'Fish', price: '5.50', desc: '', tags: [], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'sides',
+                        screen: 0,
+                        column: 'right',
+                        compact: true,
+                        title: '7. Side Orders',
+                        subtitle: '',
+                        items: [
+                            { id: 'sd1', name: 'Onion Rings', price: '2.50', desc: '', tags: ['vegan'], soldOut: false },
+                            { id: 'sd2', name: 'Sausages (3 Pieces)', price: '3.00', desc: '', tags: [], soldOut: false },
+                            { id: 'sd3', name: 'Battered Sausages (3 Pieces)', price: '3.50', desc: '', tags: [], soldOut: false },
+                            { id: 'sd4', name: 'Garlic Mushrooms', price: '3.60', desc: 'With Garlic Dip', tags: ['vegan'], soldOut: false },
+                            { id: 'sd5', name: 'Jumbo Hot Dog', price: '3.60', desc: '', tags: [], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'drinks',
+                        screen: 0,
+                        column: 'right',
+                        compact: true,
+                        twoCol: true,
+                        title: '11. Drinks',
+                        subtitle: '',
+                        items: [
+                            { id: 'dr1', name: 'Can', price: '1.50', desc: '', tags: [], soldOut: false },
+                            { id: 'dr2', name: 'Bottle (500ml)', price: '1.90', desc: '', tags: [], soldOut: false },
+                            { id: 'dr3', name: 'Bottle Water', price: '1.50', desc: '', tags: [], soldOut: false },
+                            { id: 'dr4', name: 'Large Bottle', price: '3.00', desc: '', tags: [], soldOut: false }
+                        ]
+                    },
+
+                    // ---------------- SCREEN 2 ----------------
+                    {
+                        id: 'kebabs',
+                        screen: 1,
+                        column: 'left',
+                        compact: false,
+                        title: '3. Fresh Kebabs',
+                        subtitle: 'All Large Kebabs Served with Fresh Naan Bread, Mixed Salad, Chilli & Garlic Sauce',
+                        items: [
+                            { id: 'k1', name: 'Doner Kebab', price: '6.50', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'k2', name: 'Doner Chip Tray', price: '6.50', desc: '', tags: [], soldOut: false },
+                            { id: 'k3', name: 'Chicken Kebab', price: '6.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'k4', name: 'Chicken Chip Tray', price: '6.95', desc: '', tags: [], soldOut: false },
+                            { id: 'k5', name: 'Mix Kebab', price: '7.50', desc: 'Doner & Chicken', tags: ['popular'], soldOut: false },
+                            { id: 'k6', name: 'Vegetable Kebab', price: '5.50', desc: '', tags: ['vegan'], soldOut: false },
+                            { id: 'k7', name: 'Special Mixed Kebab', price: '9.95', desc: 'Chicken & Doner for 2 people, with your own choice of Dressing & Garnish', tags: ['popular'], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'hogies',
+                        screen: 1,
+                        column: 'left',
+                        compact: true,
+                        title: '9. Hogies',
+                        subtitle: 'Served in Container with Naan Bread, Chips, Meat, Salad & Sauce',
+                        items: [
+                            { id: 'h1', name: 'Doner Hogie', price: '6.50', desc: '', tags: [], soldOut: false },
+                            { id: 'h2', name: 'Chicken Hogie', price: '6.95', desc: '', tags: [], soldOut: false },
+                            { id: 'h3', name: 'Mixed Hogie', price: '7.55', desc: 'Chicken & Doner', tags: ['popular'], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'chicken',
+                        screen: 1,
+                        column: 'center',
+                        compact: true,
+                        title: '4. Chicken',
+                        subtitle: '',
+                        items: [
+                            { id: 'ch1', name: 'Chicken Breast', price: '3.95', desc: '', tags: [], soldOut: false },
+                            { id: 'ch2', name: 'Spice Chicken Wings', price: '3.95', desc: '', tags: ['spicy'], soldOut: false },
+                            { id: 'ch3', name: 'Chicken Nuggets', price: '3.50', desc: '', tags: [], soldOut: false },
+                            { id: 'ch4', name: 'Chicken Bites', price: '3.50', desc: '', tags: [], soldOut: false },
+                            { id: 'ch5', name: 'Chicken Goujons', price: '3.95', desc: '', tags: ['popular'], soldOut: false },
+                            { id: 'ch6', name: 'Chicken Tenders', price: '3.95', desc: '', tags: [], soldOut: false },
+                            { id: 'ch7', name: 'Snack Box', price: '5.95', desc: '2 Pieces of Chicken, Chips & Drink', tags: ['popular'], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'wraps',
+                        screen: 1,
+                        column: 'center',
+                        compact: true,
+                        title: '5. Wraps',
+                        subtitle: 'Served on Tortilla Wrap with Mixed Salad, Chilli & Garlic Sauce',
+                        items: [
+                            { id: 'wr1', name: 'Sweet Chilli Chicken Wrap', price: '4.95', desc: 'Sweet Chilli Sauce, Onions & Peppers', tags: ['popular'], soldOut: false },
+                            { id: 'wr2', name: 'Chicken Tikka Wrap', price: '4.95', desc: '', tags: [], soldOut: false },
+                            { id: 'wr3', name: 'Chicken Goujons Wrap', price: '4.95', desc: '', tags: [], soldOut: false },
+                            { id: 'wr4', name: 'Doner Wrap', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'wr5', name: 'Salad Wrap', price: '3.50', desc: '', tags: ['vegan'], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'kids',
+                        screen: 1,
+                        column: 'right',
+                        compact: true,
+                        title: '8. Kids Meals',
+                        subtitle: 'All Kids Meals served with Chips & Capri Sun',
+                        items: [
+                            { id: 'kd1', name: 'Chicken Nuggets, Chips & Capri Sun', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'kd2', name: 'Sausages, Chips & Capri Sun', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'kd3', name: 'Chicken Goujons, Chips & Capri Sun', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'kd4', name: 'Chicken Bites, Chips & Capri Sun', price: '4.50', desc: '', tags: [], soldOut: false },
+                            { id: 'kd5', name: 'Chicken Tenders, Chips & Capri Sun', price: '4.50', desc: '', tags: [], soldOut: false }
+                        ]
+                    },
+                    {
+                        id: 'sauces',
+                        screen: 1,
+                        column: 'right',
+                        compact: true,
+                        twoCol: true,
+                        title: '10. Sauces',
+                        subtitle: 'All Sauces €1.20 each',
+                        items: [
+                            { id: 'sc1', name: 'Curry Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc2', name: 'Kebab Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc3', name: 'Sweet Chilli Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc4', name: 'House Chilli Sauce', price: '1.20', desc: '', tags: ['spicy'], soldOut: false },
+                            { id: 'sc5', name: 'Garlic Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc6', name: 'Mayo', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc7', name: 'Ketchup', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc8', name: 'Taco Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc9', name: 'BBQ Sauce', price: '1.20', desc: '', tags: [], soldOut: false },
+                            { id: 'sc10', name: 'Mint Sauce', price: '1.20', desc: '', tags: [], soldOut: false }
+                        ]
+                    }
+                ],
+                // ---------------- SCREEN 3: PIZZAS ----------------
+                pizzaConfig: {
+                    subtitle: 'All Pizzas made with Fresh Dough!',
+                    garlicBread: 'Garlic Bread: 10" €4.95 • 12" €5.50',
+                    toppingsNote: 'Toppings: Ham, Chicken, Pepperoni, Sausage, Mushroom, Extra Cheese, Tomato, Peppers, Bacon, Sweetcorn — WE CAN CREATE YOUR OWN PIZZA'
+                },
+                pizzas: [
+                    { id: 'pz1', name: 'Margarita', desc: 'Tomato Sauce, Mozzarella & Oregano', p10: '7', p12: '9', p16: '11', tags: ['vegan'], soldOut: false },
+                    { id: 'pz2', name: 'Americana', desc: 'BBQ Sauce, Mozzarella, Red Onion & Chicken', p10: '8', p12: '10', p16: '13', tags: [], soldOut: false },
+                    { id: 'pz3', name: 'Hawaiian', desc: 'Mozzarella, Ham, Pineapple', p10: '8', p12: '10', p16: '13', tags: [], soldOut: false },
+                    { id: 'pz4', name: 'Pepperoni', desc: 'Pepperoni, Mozzarella', p10: '8', p12: '10', p16: '13', tags: ['popular'], soldOut: false },
+                    { id: 'pz5', name: 'Michelangelo', desc: 'Tomato Sauce, Mozzarella, Pineapple, Ham & Mushroom', p10: '8', p12: '10', p16: '13', tags: [], soldOut: false },
+                    { id: 'pz6', name: 'Mexicana', desc: 'Tomato Sauce, Mozzarella, Red Onion, Jalapeno, Sweetcorn, Chicken, Fresh Chilli', p10: '8', p12: '10', p16: '13', tags: ['spicy'], soldOut: false },
+                    { id: 'pz7', name: 'Vegetarian', desc: 'Tomato Sauce, Mozzarella, Red Onion, Sweetcorn, Peppers, Mushroom & Tomato', p10: '8', p12: '10', p16: '13', tags: ['vegan'], soldOut: false },
+                    { id: 'pz8', name: 'Meat Feast', desc: 'Ham, Pepperoni, Spicy Beef & Chicken', p10: '8', p12: '10', p16: '13', tags: ['popular'], soldOut: false },
+                    { id: 'pz9', name: 'BBQ Pizza', desc: 'BBQ Chicken, Salami, Red Onion & Green Peppers', p10: '8', p12: '10', p16: '13', tags: [], soldOut: false },
+                    { id: 'pz10', name: "SB's Pizza", desc: 'Tomato Sauce, Mozzarella, Green Chilli, Chicken Tikka, Onion, Doner Meat, Sausage', p10: '8', p12: '10', p16: '13', tags: ['popular', 'spicy'], soldOut: false },
+                    { id: 'pz11', name: 'Capricosa', desc: 'Tomato Sauce, Mozzarella, Ham & Mushrooms', p10: '8', p12: '10', p16: '13', tags: [], soldOut: false }
+                ],
+                // ---------------- SCREEN 3: 15 MEAL DEALS ----------------
+                mealDeals: [
+                    { id: 'md1', name: 'Munchy Box', desc: 'Doner Meat, Chicken Nuggets, Chicken Goujons, Onion Rings, Fresh Salad & Chips', price: '9.95', featured: true, soldOut: false },
+                    { id: 'md2', name: '12" Pizza, Chips & Drink', desc: 'Any 3 Toppings', price: '12.50', featured: true, soldOut: false },
+                    { id: 'md3', name: '10" Pizza, Chips & Drink', desc: 'Any 2 Toppings', price: '10.50', featured: false, soldOut: false },
+                    { id: 'md4', name: 'Mixed Kebab, Chips & Drink', desc: 'Doner & Chicken Meat', price: '9.50', featured: false, soldOut: false },
+                    { id: 'md5', name: 'Chicken Kebab, Chips & Drink', desc: '', price: '9.50', featured: false, soldOut: false },
+                    { id: 'md6', name: 'Doner Kebab, Chips & Drink', desc: '', price: '8.95', featured: false, soldOut: false },
+                    { id: 'md7', name: '4oz Double Decker Burger with Cheese', desc: 'Served with Chips & Drink', price: '7.95', featured: false, soldOut: false },
+                    { id: 'md8', name: 'Chicken Fillet Burger, Chips & Drink', desc: '', price: '7.50', featured: false, soldOut: false },
+                    { id: 'md9', name: '1/4 Pounder with Cheese, Chips & Drink', desc: '', price: '7.50', featured: false, soldOut: false },
+                    { id: 'md10', name: '1/4 Pounder, Chips & Drink', desc: '', price: '6.95', featured: false, soldOut: false },
+                    { id: 'md11', name: 'Chicken Goujons, Chips & Drink', desc: '', price: '6.95', featured: false, soldOut: false },
+                    { id: 'md12', name: 'Chicken Nuggets, Chips & Drink', desc: '', price: '6.50', featured: false, soldOut: false },
+                    { id: 'md13', name: 'Jumbo Hotdog, Chips & Drink', desc: '', price: '6.50', featured: false, soldOut: false },
+                    { id: 'md14', name: '3 Battered Sausages, Chips & Drink', desc: '', price: '6.50', featured: false, soldOut: false },
+                    { id: 'md15', name: '3 Sausages, Chips & Drink', desc: '', price: '6.50', featured: false, soldOut: false }
+                ],
+                // ---------------- SPOTLIGHT CAROUSEL ----------------
+                promos: [
+                    {
+                        id: 'p1',
+                        eyebrow: 'Most Popular Box',
+                        title: 'Munchy Box',
+                        desc: 'Doner Meat, Chicken Nuggets, Chicken Goujons, Onion Rings, Fresh Salad & Chips.',
+                        footnote: 'Call 071 919 6670 to Place Orders',
+                        price: '9.95'
+                    },
+                    {
+                        id: 'p2',
+                        eyebrow: 'Pizza Meal Deal',
+                        title: '12" Pizza, Chips & Drink',
+                        desc: 'Fresh dough 12" pizza with your choice of any 3 toppings, fresh cut chips & a cold drink.',
+                        footnote: '10" Pizza Deal Also Available for €10.50',
+                        price: '12.50'
+                    },
+                    {
+                        id: 'p3',
+                        eyebrow: 'Sharing Kebab',
+                        title: 'Special Mixed Kebab',
+                        desc: 'A generous kebab with Chicken & Doner for 2 people, with your choice of dressing & garnish.',
+                        footnote: 'Served with Fresh Naan & Salad',
+                        price: '9.95'
+                    },
+                    {
+                        id: 'p4',
+                        eyebrow: 'Great Value',
+                        title: 'Chicken Snack Box',
+                        desc: '2 crispy pieces of fresh chicken served with golden chips & a cold drink.',
+                        footnote: 'Freshly Cooked to Order',
+                        price: '5.95'
+                    }
+                ]
+            };
+
+            // ---------------------------------------------------------
+            // 2. STATE INITIALIZATION & SAFE STORAGE HELPERS
+            // ---------------------------------------------------------
+            function deepClone(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            }
+
+            function loadState() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (parsed && Array.isArray(parsed.categories) && Array.isArray(parsed.pizzas) && Array.isArray(parsed.mealDeals)) {
+                            if (!THEMES[parsed.theme]) parsed.theme = 'takeaway';
+                            return parsed;
+                        }
+                    }
+                    // Preserve any user edits from the previous version while upgrading to the new color theme
+                    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+                    if (legacy) {
+                        const parsedLegacy = JSON.parse(legacy);
+                        if (parsedLegacy && Array.isArray(parsedLegacy.categories) && Array.isArray(parsedLegacy.pizzas) && Array.isArray(parsedLegacy.mealDeals)) {
+                            parsedLegacy.theme = 'takeaway';
+                            return parsedLegacy;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Could not load saved menu state, using defaults:', err);
+                }
+                return deepClone(DEFAULT_STATE);
+            }
+
+            function saveState() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                } catch (err) {
+                    console.warn('Could not persist menu state to localStorage:', err);
+                }
+            }
+
+            /**
+             * Safely escapes HTML special characters to prevent XSS when rendering user input.
+             */
+            function escapeHtml(str) {
+                return String(str || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            let state = loadState();
+            let activeScreen = 0;
+            let screenElapsedMs = 0;
+            let isAutoRotatePaused = false;
+            let activePromoIndex = 0;
+            let promoElapsedMs = 0;
+            const PROMO_DURATION_MS = 7000;
+            let selectedCategoryId = state.categories[0] ? state.categories[0].id : '';
+            let idleTimeout = null;
+            let toastTimeout = null;
+
+            // ---------------------------------------------------------
+            // 3. DOM ELEMENT REFERENCES
+            // ---------------------------------------------------------
+            const elBody = document.getElementById('app-body');
+            const elHeader = document.getElementById('tv-header');
+            const elFooter = document.getElementById('tv-footer');
+            const elBrandIcon = document.getElementById('brand-icon-wrap');
+            const elBrandName = document.getElementById('display-brand-name');
+            const elBrandTagline = document.getElementById('display-brand-tagline');
+            const elFooterNote = document.getElementById('display-footer-note');
+            const elControlToolbar = document.getElementById('control-toolbar');
+            const elScreenProgress = document.getElementById('screen-progress');
+            const elRotateDot = document.getElementById('rotate-indicator-dot');
+            const elRotateLabel = document.getElementById('rotate-label');
+
+            // Screen Containers
+            const elS0Left = document.getElementById('s0-col-left');
+            const elS0Center = document.getElementById('s0-col-center');
+            const elS0RightCats = document.getElementById('s0-col-right-cats');
+            const elS1Left = document.getElementById('s1-col-left');
+            const elS1Center = document.getElementById('s1-col-center');
+            const elS1Right = document.getElementById('s1-col-right');
+            const elS2Pizzas = document.getElementById('s2-pizzas-col');
+            const elS2Deals = document.getElementById('s2-deals-col');
+
+            // Promo Elements
+            const elPromoCard = document.getElementById('promo-card');
+            const elPromoGlow = document.getElementById('promo-glow');
+            const elPromoEyebrow = document.getElementById('promo-eyebrow');
+            const elPromoDots = document.getElementById('promo-dots');
+            const elPromoTitle = document.getElementById('promo-title');
+            const elPromoDesc = document.getElementById('promo-desc');
+            const elPromoFootnote = document.getElementById('promo-footnote');
+            const elPromoPrice = document.getElementById('promo-price');
+            const elPromoProgress = document.getElementById('promo-progress');
+
+            // Editor Elements
+            const elEditorBackdrop = document.getElementById('editor-backdrop');
+            const elInputBrandName = document.getElementById('input-brand-name');
+            const elInputBrandTagline = document.getElementById('input-brand-tagline');
+            const elInputPhone = document.getElementById('input-phone');
+            const elInputCurrency = document.getElementById('input-currency');
+            const elInputRotateSec = document.getElementById('input-rotate-sec');
+            const elInputFooterNote = document.getElementById('input-footer-note');
+            const elSelectEditCat = document.getElementById('select-edit-category');
+            const elInputCatTitle = document.getElementById('input-category-title');
+            const elInputCatSubtitle = document.getElementById('input-category-subtitle');
+            const elEditorItemsList = document.getElementById('editor-items-list');
+            const elEditorPizzasList = document.getElementById('editor-pizzas-list');
+            const elEditorDealsList = document.getElementById('editor-deals-list');
+            const elEditorPromosList = document.getElementById('editor-promos-list');
+
+            // ---------------------------------------------------------
+            // 4. TOAST NOTIFICATION HELPER
+            // ---------------------------------------------------------
+            function showToast(message) {
+                const box = document.getElementById('toast-box');
+                const msg = document.getElementById('toast-message');
+                msg.textContent = message;
+                box.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                box.classList.add('opacity-100', 'translate-y-0');
+
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    box.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                    box.classList.remove('opacity-100', 'translate-y-0');
+                }, 2600);
+            }
+
+            // ---------------------------------------------------------
+            // 5. RENDERING ENGINE (TV BOARD)
+            // ---------------------------------------------------------
+            function getTheme() {
+                return THEMES[state.theme] || THEMES.takeaway;
+            }
+
+            /**
+             * Cycles through all available display color themes with a single click or keypress.
+             */
+            function cycleTheme() {
+                const keys = Object.keys(THEMES);
+                const nextIdx = (keys.indexOf(state.theme) + 1) % keys.length;
+                state.theme = keys[nextIdx];
+                saveState();
+                populateGeneralFields();
+                renderBoard();
+                showToast(`Color Theme: ${THEMES[state.theme].label}`);
+            }
+
+            /**
+             * Renders small dietary / highlight badges for each menu item.
+             */
+            function renderTagsHtml(tags) {
+                if (!Array.isArray(tags) || tags.length === 0) return '';
+                const map = {
+                    popular: '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">★</span>',
+                    vegan: '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">V</span>',
+                    spicy: '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30">🌶</span>',
+                    gf: '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-400 border border-sky-500/30">GF</span>'
+                };
+                return tags.map(t => map[t] || '').join('');
+            }
+
+            /**
+             * Builds the HTML card for a standard menu category (supports single or 2-column compact layout).
+             */
+            function buildCategoryCard(category, theme) {
+                const padY = category.compact ? 'py-1.5 lg:py-2' : 'py-2.5 lg:py-3';
+                const titleSize = category.compact ? 'text-sm sm:text-base lg:text-[17px]' : 'text-base sm:text-lg lg:text-xl';
+
+                let itemsContent = '';
+                if (category.twoCol) {
+                    itemsContent = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 pt-2">
+                            ${category.items.map(item => {
+                                const priceFormatted = item.price ? `${escapeHtml(state.currency)}${escapeHtml(item.price)}` : '';
+                                return `
+                                    <div class="flex items-baseline justify-between gap-2 py-1 border-b ${theme.itemRowBorder} ${item.soldOut ? 'opacity-40 line-through' : ''}">
+                                        <span class="text-sm sm:text-base font-bold leading-snug">${escapeHtml(item.name)}</span>
+                                        <span class="text-sm sm:text-base font-black tabular-nums shrink-0 ${theme.itemPrice}">${priceFormatted}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    itemsContent = category.items.map((item, idx) => {
+                        const isLast = idx === category.items.length - 1;
+                        const borderClass = isLast ? '' : `border-b ${theme.itemRowBorder}`;
+                        const soldOutClasses = item.soldOut ? 'opacity-40' : '';
+                        const priceFormatted = item.price ? `${escapeHtml(state.currency)}${escapeHtml(item.price)}` : '';
+
+                        return `
+                            <div class="${padY} ${borderClass} ${soldOutClasses} transition-opacity">
+                                <div class="flex items-baseline justify-between gap-2.5">
+                                    <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+                                        <h3 class="${titleSize} font-extrabold tracking-tight leading-snug ${item.soldOut ? 'line-through' : ''}">
+                                            ${escapeHtml(item.name)}
+                                        </h3>
+                                        ${item.soldOut
+                                            ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-rose-600 text-white">Sold Out</span>'
+                                            : renderTagsHtml(item.tags)
+                                        }
+                                    </div>
+                                    <div class="${titleSize} font-black tabular-nums shrink-0 ${theme.itemPrice}">
+                                        ${priceFormatted}
+                                    </div>
+                                </div>
+                                ${item.desc ? `<p class="text-xs opacity-70 mt-0.5 leading-snug pr-3">${escapeHtml(item.desc)}</p>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                return `
+                    <article class="rounded-3xl border p-4 sm:p-5 flex flex-col flex-1 transition-colors duration-500 ${theme.card}">
+                        <div class="pb-2 mb-1 border-b ${theme.categoryDivider}">
+                            <div class="flex items-baseline justify-between gap-2">
+                                <h2 class="text-lg sm:text-xl lg:text-2xl font-black uppercase tracking-wide leading-tight ${theme.categoryTitle}">
+                                    ${escapeHtml(category.title)}
+                                </h2>
+                                <span class="text-[11px] font-bold uppercase tracking-widest opacity-40 shrink-0">
+                                    ${category.items.length} items
+                                </span>
+                            </div>
+                            ${category.subtitle ? `<p class="text-xs font-semibold opacity-75 mt-1 leading-snug">${escapeHtml(category.subtitle)}</p>` : ''}
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center">
+                            ${itemsContent || '<p class="text-sm opacity-50 py-4 text-center italic">No items in this category yet.</p>'}
+                        </div>
+                    </article>
+                `;
+            }
+
+            /**
+             * Builds the Fresh Dough Pizzas card with aligned 10" / 12" / 16" columns.
+             */
+            function buildPizzasCard(theme) {
+                const cfg = state.pizzaConfig || {};
+                const cur = escapeHtml(state.currency);
+                const rowsHtml = state.pizzas.map((pz, idx) => {
+                    const isLast = idx === state.pizzas.length - 1;
+                    const borderClass = isLast ? '' : `border-b ${theme.itemRowBorder}`;
+                    return `
+                        <div class="py-2 ${borderClass} ${pz.soldOut ? 'opacity-40' : ''}">
+                            <div class="grid grid-cols-12 items-baseline gap-2">
+                                <div class="col-span-7 sm:col-span-8 pr-2">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <h3 class="text-sm sm:text-base lg:text-[17px] font-extrabold tracking-tight leading-snug ${pz.soldOut ? 'line-through' : ''}">
+                                            ${escapeHtml(pz.name)}
+                                        </h3>
+                                        ${pz.soldOut
+                                            ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-rose-600 text-white">Sold Out</span>'
+                                            : renderTagsHtml(pz.tags)
+                                        }
+                                    </div>
+                                    ${pz.desc ? `<p class="text-[11px] sm:text-xs opacity-70 leading-snug mt-0.5">${escapeHtml(pz.desc)}</p>` : ''}
+                                </div>
+                                <div class="col-span-5 sm:col-span-4 grid grid-cols-3 text-right font-black text-sm sm:text-base lg:text-lg tabular-nums ${theme.itemPrice}">
+                                    <span>${pz.p10 ? cur + escapeHtml(pz.p10) : '-'}</span>
+                                    <span>${pz.p12 ? cur + escapeHtml(pz.p12) : '-'}</span>
+                                    <span>${pz.p16 ? cur + escapeHtml(pz.p16) : '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <article class="rounded-3xl border p-4 sm:p-5 flex flex-col flex-1 transition-colors duration-500 ${theme.card}">
+                        <!-- Header + Garlic Bread Callout -->
+                        <div class="pb-2.5 border-b ${theme.categoryDivider} flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-wide leading-none ${theme.categoryTitle}">
+                                    Fresh Dough Pizzas
+                                </h2>
+                                ${cfg.subtitle ? `<p class="text-xs font-semibold opacity-75 mt-1">${escapeHtml(cfg.subtitle)}</p>` : ''}
+                            </div>
+                            ${cfg.garlicBread ? `
+                                <div class="px-3 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm tracking-tight shrink-0 ${theme.dealPriceBadge}">
+                                    ${escapeHtml(cfg.garlicBread)}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Size Column Headers -->
+                        <div class="grid grid-cols-12 items-center gap-2 py-2 border-b ${theme.categoryDivider} text-xs font-black uppercase tracking-widest opacity-65">
+                            <div class="col-span-7 sm:col-span-8">Pizza &amp; Toppings</div>
+                            <div class="col-span-5 sm:col-span-4 grid grid-cols-3 text-right">
+                                <span>10"</span>
+                                <span>12"</span>
+                                <span>16"</span>
+                            </div>
+                        </div>
+
+                        <!-- Pizza Rows -->
+                        <div class="flex-1 flex flex-col justify-center">
+                            ${rowsHtml}
+                        </div>
+
+                        <!-- Create Your Own / Toppings Footer -->
+                        ${cfg.toppingsNote ? `
+                            <div class="mt-3 pt-2.5 border-t ${theme.categoryDivider} text-xs font-bold leading-snug opacity-85">
+                                ${escapeHtml(cfg.toppingsNote)}
+                            </div>
+                        ` : ''}
+                    </article>
+                `;
+            }
+
+            /**
+             * Builds the 15 Value Meal Deals board for Screen 3.
+             */
+            function buildMealDealsBoard(theme) {
+                const cur = escapeHtml(state.currency);
+                const cardsHtml = state.mealDeals.map(deal => {
+                    const cardStyle = deal.featured ? theme.dealCardFeatured : theme.dealCard;
+                    return `
+                        <div class="rounded-2xl border p-3 sm:p-3.5 flex flex-col justify-between gap-2 transition ${cardStyle} ${deal.soldOut ? 'opacity-40' : ''}">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0">
+                                    ${deal.featured ? `<span class="inline-block mb-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${theme.dealPriceBadge}">★ Top Deal</span>` : ''}
+                                    <h3 class="text-sm sm:text-[15px] font-extrabold leading-tight ${deal.soldOut ? 'line-through' : ''}">
+                                        ${escapeHtml(deal.name)}
+                                    </h3>
+                                </div>
+                                <div class="px-2.5 py-1 rounded-xl font-black text-sm sm:text-base tabular-nums shrink-0 shadow-sm ${theme.dealPriceBadge}">
+                                    ${deal.price ? cur + escapeHtml(deal.price) : ''}
+                                </div>
+                            </div>
+                            ${deal.desc ? `<p class="text-[11px] sm:text-xs opacity-75 leading-snug">${escapeHtml(deal.desc)}</p>` : ''}
+                            ${deal.soldOut ? '<span class="text-[10px] font-extrabold uppercase text-rose-400">Sold Out</span>' : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <article class="rounded-3xl border p-4 sm:p-5 flex flex-col flex-1 transition-colors duration-500 ${theme.card}">
+                        <div class="pb-2.5 mb-3 border-b ${theme.categoryDivider} flex items-baseline justify-between gap-2">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-wide leading-none ${theme.categoryTitle}">
+                                    Value Meal Deals
+                                </h2>
+                                <p class="text-xs font-semibold opacity-75 mt-1">Great Value Combos • Freshly Prepared to Order</p>
+                            </div>
+                            <span class="text-xs font-extrabold uppercase tracking-wider opacity-50">${state.mealDeals.length} Deals</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 flex-1 content-start">
+                            ${cardsHtml}
+                        </div>
+                    </article>
+                `;
+            }
+
+            /**
+             * Builds a prominent phone-order banner card for Screen 2 right column.
+             */
+            function buildOrderCalloutCard(theme) {
+                return `
+                    <div class="rounded-3xl p-5 border shadow-lg flex items-center justify-between gap-4 ${theme.promoCard}">
+                        <div>
+                            <div class="text-xs font-extrabold uppercase tracking-widest opacity-75">Telephone Orders Welcome</div>
+                            <div class="text-2xl sm:text-3xl font-black tracking-tight mt-0.5 ${theme.promoPrice}">
+                                ${escapeHtml(state.phone)}
+                            </div>
+                            <div class="text-xs opacity-75 mt-1">Call ahead for fast takeaway collection!</div>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${theme.brandIcon}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+            }
+
+            /**
+             * Updates the active TV screen visibility and navigation button states.
+             */
+            function applyScreenVisibility() {
+                const theme = getTheme();
+                document.querySelectorAll('.tv-screen').forEach((el, idx) => {
+                    el.classList.toggle('hidden', idx !== activeScreen);
+                });
+                document.querySelectorAll('.screen-nav-btn').forEach(btn => {
+                    const isActive = Number(btn.dataset.screen) === activeScreen;
+                    btn.className = `screen-nav-btn px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition cursor-pointer border ${isActive ? theme.navActive : theme.navIdle}`;
+                });
+
+                const autoEnabled = Number(state.autoRotateSec) > 0 && !isAutoRotatePaused;
+                elRotateLabel.textContent = autoEnabled ? `Auto ${state.autoRotateSec}s` : 'Locked';
+                elRotateDot.className = `w-2 h-2 rounded-full ${autoEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`;
+                if (!autoEnabled) {
+                    elScreenProgress.style.width = '0%';
+                }
+            }
+
+            /**
+             * Renders the entire TV board across all 3 screens based on current state.
+             */
+            function renderBoard() {
+                const theme = getTheme();
+
+                // Apply Theme Classes
+                elBody.className = `font-sans antialiased min-h-screen flex flex-col justify-between overflow-x-hidden transition-colors duration-500 ${theme.body}`;
+                elHeader.className = `w-full px-4 sm:px-6 lg:px-8 py-3.5 lg:py-4 border-b transition-colors duration-500 relative ${theme.header}`;
+                elFooter.className = `w-full px-4 sm:px-6 lg:px-8 py-3 border-t transition-colors duration-500 ${theme.footer}`;
+                elBrandIcon.className = `w-11 h-11 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center shadow-lg shrink-0 transition-colors duration-500 ${theme.brandIcon}`;
+                elScreenProgress.className = `h-full transition-all duration-100 ease-linear ${theme.screenProgress}`;
+
+                document.getElementById('phone-badge-desktop').className = `hidden xl:flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-base lg:text-lg tracking-tight shadow-lg shrink-0 ${theme.phoneBadge}`;
+                document.getElementById('phone-badge-mobile').className = `xl:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm tracking-tight shrink-0 shadow ${theme.phoneBadge}`;
+
+                // Update Brand Copy & Phone Numbers
+                elBrandName.textContent = state.brandName || 'TAKEAWAY MENU';
+                elBrandTagline.textContent = state.tagline || '';
+                elFooterNote.textContent = state.footerNote || '';
+                document.querySelectorAll('.display-phone-number').forEach(el => {
+                    el.textContent = state.phone || '';
+                });
+
+                // Clear Screen Containers
+                elS0Left.innerHTML = '';
+                elS0Center.innerHTML = '';
+                elS0RightCats.innerHTML = '';
+                elS1Left.innerHTML = '';
+                elS1Center.innerHTML = '';
+                elS1Right.innerHTML = '';
+
+                // Distribute Categories to Screen 1 & Screen 2
+                state.categories.forEach(cat => {
+                    const cardHtml = buildCategoryCard(cat, theme);
+                    if (cat.screen === 0) {
+                        if (cat.column === 'left') elS0Left.insertAdjacentHTML('beforeend', cardHtml);
+                        else if (cat.column === 'center') elS0Center.insertAdjacentHTML('beforeend', cardHtml);
+                        else elS0RightCats.insertAdjacentHTML('beforeend', cardHtml);
+                    } else if (cat.screen === 1) {
+                        if (cat.column === 'left') elS1Left.insertAdjacentHTML('beforeend', cardHtml);
+                        else if (cat.column === 'center') elS1Center.insertAdjacentHTML('beforeend', cardHtml);
+                        else elS1Right.insertAdjacentHTML('beforeend', cardHtml);
+                    }
+                });
+
+                // Add Phone Order Callout to bottom of Screen 2 Right Column
+                elS1Right.insertAdjacentHTML('beforeend', buildOrderCalloutCard(theme));
+
+                // Render Screen 3 (Pizzas & 15 Meal Deals)
+                elS2Pizzas.innerHTML = buildPizzasCard(theme);
+                elS2Deals.innerHTML = buildMealDealsBoard(theme);
+
+                renderActivePromo();
+                applyScreenVisibility();
+            }
+
+            /**
+             * Renders the currently active rotating spotlight promo card.
+             */
+            function renderActivePromo() {
+                const theme = getTheme();
+                const promos = state.promos;
+
+                if (!promos || promos.length === 0) {
+                    elPromoCard.classList.add('hidden');
+                    return;
+                }
+                elPromoCard.classList.remove('hidden');
+
+                if (activePromoIndex >= promos.length) {
+                    activePromoIndex = 0;
+                }
+                const slide = promos[activePromoIndex];
+
+                elPromoCard.className = `relative rounded-3xl p-5 lg:p-6 overflow-hidden border shadow-2xl flex flex-col justify-between min-h-[210px] transition-all duration-500 ${theme.promoCard}`;
+                elPromoGlow.className = `pointer-events-none absolute -top-20 -right-20 w-60 h-60 rounded-full blur-3xl opacity-25 transition-colors duration-700 ${theme.promoGlow}`;
+                elPromoEyebrow.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest ${theme.promoEyebrow}`;
+                elPromoPrice.className = `text-3xl sm:text-4xl font-black tracking-tight tabular-nums ${theme.promoPrice}`;
+                elPromoProgress.className = `h-full transition-all duration-100 ease-linear ${theme.promoProgress}`;
+
+                elPromoEyebrow.textContent = slide.eyebrow || 'Special';
+                elPromoTitle.textContent = slide.title || '';
+                elPromoDesc.textContent = slide.desc || '';
+                elPromoFootnote.textContent = slide.footnote || '';
+                elPromoPrice.textContent = slide.price ? `${state.currency}${slide.price}` : '';
+
+                // Render Interactive Slide Dots
+                elPromoDots.innerHTML = promos.map((_, idx) => {
+                    const active = idx === activePromoIndex;
+                    return `<button type="button" data-promo-idx="${idx}" aria-label="Go to slide ${idx + 1}" class="h-2 rounded-full transition-all duration-300 cursor-pointer ${active ? `w-6 ${theme.dotActive}` : `w-2 ${theme.dotIdle}`}"></button>`;
+                }).join('');
+
+                elPromoDots.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        activePromoIndex = Number(btn.dataset.promoIdx);
+                        promoElapsedMs = 0;
+                        renderActivePromo();
+                    });
+                });
+            }
+
+            // ---------------------------------------------------------
+            // 6. LIVE CLOCK, SCREEN ROTATION & PROMO TIMERS
+            // ---------------------------------------------------------
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const mins = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('live-clock').textContent = `${hours}:${mins}`;
+
+                const dateStr = now.toLocaleDateString(undefined, {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'short'
+                });
+                document.getElementById('live-date').textContent = dateStr;
+            }
+
+            function startPromoLoop() {
+                const tickMs = 100;
+                setInterval(() => {
+                    // Pause auto-rotations while editor is open
+                    if (!elEditorBackdrop.classList.contains('hidden')) return;
+
+                    // 1. Spotlight Promo Card Timer
+                    if (state.promos && state.promos.length > 1) {
+                        promoElapsedMs += tickMs;
+                        const pct = Math.min(100, (promoElapsedMs / PROMO_DURATION_MS) * 100);
+                        elPromoProgress.style.width = `${pct}%`;
+
+                        if (promoElapsedMs >= PROMO_DURATION_MS) {
+                            promoElapsedMs = 0;
+                            activePromoIndex = (activePromoIndex + 1) % state.promos.length;
+                            renderActivePromo();
+                        }
+                    } else {
+                        elPromoProgress.style.width = '100%';
+                    }
+
+                    // 2. Multi-Screen TV Auto-Rotation Timer
+                    const rotateMs = Number(state.autoRotateSec) * 1000;
+                    if (rotateMs > 0 && !isAutoRotatePaused) {
+                        screenElapsedMs += tickMs;
+                        const sPct = Math.min(100, (screenElapsedMs / rotateMs) * 100);
+                        elScreenProgress.style.width = `${sPct}%`;
+
+                        if (screenElapsedMs >= rotateMs) {
+                            screenElapsedMs = 0;
+                            activeScreen = (activeScreen + 1) % 3;
+                            applyScreenVisibility();
+                        }
+                    }
+                }, tickMs);
+            }
+
+            // ---------------------------------------------------------
+            // 7. IDLE TOOLBAR AUTO-FADE FOR CLEAN TV SIGNAGE
+            // ---------------------------------------------------------
+            function resetIdleTimer() {
+                elControlToolbar.classList.remove('opacity-15');
+                elControlToolbar.classList.add('opacity-100');
+                clearTimeout(idleTimeout);
+
+                // Keep controls visible when editor is open
+                if (!elEditorBackdrop.classList.contains('hidden')) return;
+
+                idleTimeout = setTimeout(() => {
+                    elControlToolbar.classList.remove('opacity-100');
+                    elControlToolbar.classList.add('opacity-15');
+                }, 5000);
+            }
+
+            // ---------------------------------------------------------
+            // 8. FULLSCREEN MODE HANDLER
+            // ---------------------------------------------------------
+            function toggleFullscreen() {
+                try {
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(() => {
+                                showToast('Fullscreen blocked by browser preview — try opening directly.');
+                            });
+                        } else {
+                            showToast('Fullscreen mode is not supported in this browser.');
+                        }
+                    } else if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                } catch (err) {
+                    showToast('Unable to toggle fullscreen mode.');
+                }
+            }
+
+            function syncFullscreenIcons() {
+                const isFs = Boolean(document.fullscreenElement);
+                document.getElementById('icon-fs-enter').classList.toggle('hidden', isFs);
+                document.getElementById('icon-fs-exit').classList.toggle('hidden', !isFs);
+            }
+
+            // ---------------------------------------------------------
+            // 9. EDITOR MODAL LOGIC
+            // ---------------------------------------------------------
+            function openEditor() {
+                populateGeneralFields();
+                populateCategorySelect();
+                renderEditorItemsList();
+                renderEditorPizzasList();
+                renderEditorDealsList();
+                renderEditorPromosList();
+                elEditorBackdrop.classList.remove('hidden');
+                resetIdleTimer();
+            }
+
+            function closeEditor() {
+                elEditorBackdrop.classList.add('hidden');
+                document.getElementById('reset-confirm-box').classList.add('hidden');
+                document.getElementById('btn-reset-request').classList.remove('hidden');
+                resetIdleTimer();
+            }
+
+            function switchEditorTab(tabName) {
+                document.querySelectorAll('.editor-tab').forEach(btn => {
+                    const active = btn.dataset.tab === tabName;
+                    btn.classList.toggle('border-amber-500', active);
+                    btn.classList.toggle('text-amber-400', active);
+                    btn.classList.toggle('border-transparent', !active);
+                    btn.classList.toggle('text-zinc-400', !active);
+                });
+
+                ['general', 'items', 'pizzas', 'deals', 'promos'].forEach(t => {
+                    document.getElementById(`tab-${t}`).classList.toggle('hidden', tabName !== t);
+                });
+            }
+
+            function populateGeneralFields() {
+                elInputBrandName.value = state.brandName;
+                elInputBrandTagline.value = state.tagline;
+                elInputPhone.value = state.phone || '';
+                elInputCurrency.value = state.currency;
+                elInputRotateSec.value = String(state.autoRotateSec ?? 18);
+                elInputFooterNote.value = state.footerNote;
+
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    const isSelected = btn.dataset.theme === state.theme;
+                    btn.classList.toggle('border-amber-500', isSelected);
+                    btn.classList.toggle('border-zinc-700', !isSelected);
+                });
+            }
+
+            function populateCategorySelect() {
+                elSelectEditCat.innerHTML = state.categories.map(cat =>
+                    `<option value="${escapeHtml(cat.id)}">${escapeHtml(cat.title)} (Screen ${cat.screen + 1})</option>`
+                ).join('');
+
+                if (!state.categories.some(c => c.id === selectedCategoryId) && state.categories.length > 0) {
+                    selectedCategoryId = state.categories[0].id;
+                }
+                elSelectEditCat.value = selectedCategoryId;
+
+                const currentCat = state.categories.find(c => c.id === selectedCategoryId);
+                elInputCatTitle.value = currentCat ? currentCat.title : '';
+                elInputCatSubtitle.value = currentCat ? (currentCat.subtitle || '') : '';
+            }
+
+            function renderEditorItemsList() {
+                const cat = state.categories.find(c => c.id === selectedCategoryId);
+                if (!cat) {
+                    elEditorItemsList.innerHTML = '';
+                    return;
+                }
+
+                if (cat.items.length === 0) {
+                    elEditorItemsList.innerHTML = '<div class="text-center text-sm text-zinc-500 py-8 border border-dashed border-zinc-800 rounded-2xl">No items in this category yet. Add one above!</div>';
+                    return;
+                }
+
+                elEditorItemsList.innerHTML = cat.items.map(item => `
+                    <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-3" data-item-id="${escapeHtml(item.id)}">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                            <input type="text" data-field="name" value="${escapeHtml(item.name)}" class="item-edit-input sm:col-span-7 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Item Name">
+                            <input type="text" data-field="price" value="${escapeHtml(item.price)}" class="item-edit-input sm:col-span-3 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Price">
+                            <button type="button" class="btn-delete-item sm:col-span-2 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-rose-600 text-zinc-400 hover:text-white text-xs font-bold transition cursor-pointer">
+                                Delete
+                            </button>
+                        </div>
+                        <input type="text" data-field="desc" value="${escapeHtml(item.desc)}" class="item-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs focus:outline-none focus:border-amber-500" placeholder="Short description">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                            <div class="flex flex-wrap gap-1.5 text-xs">
+                                ${['popular', 'vegan', 'spicy', 'gf'].map(tag => {
+                                    const checked = Array.isArray(item.tags) && item.tags.includes(tag);
+                                    const labels = { popular: '★ Popular', vegan: 'V Veg', spicy: '🌶 Spicy', gf: 'GF' };
+                                    return `
+                                        <button type="button" data-tag="${tag}" class="btn-toggle-tag px-2.5 py-1 rounded-lg border text-xs font-semibold transition cursor-pointer ${checked ? 'bg-amber-500/20 border-amber-500 text-amber-300' : 'bg-zinc-900 border-zinc-700 text-zinc-400'}">
+                                            ${labels[tag]}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                            <button type="button" class="btn-toggle-soldout px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${item.soldOut ? 'bg-rose-600/20 border-rose-500 text-rose-300' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}">
+                                ${item.soldOut ? 'Marked Sold Out' : 'Mark Sold Out'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Bind Item Editor Listeners
+                elEditorItemsList.querySelectorAll('[data-item-id]').forEach(row => {
+                    const itemId = row.dataset.itemId;
+                    const itemObj = cat.items.find(i => i.id === itemId);
+                    if (!itemObj) return;
+
+                    row.querySelectorAll('.item-edit-input').forEach(inp => {
+                        inp.addEventListener('input', () => {
+                            itemObj[inp.dataset.field] = inp.value;
+                            saveState();
+                            renderBoard();
+                        });
+                    });
+
+                    row.querySelectorAll('.btn-toggle-tag').forEach(tagBtn => {
+                        tagBtn.addEventListener('click', () => {
+                            const t = tagBtn.dataset.tag;
+                            if (!Array.isArray(itemObj.tags)) itemObj.tags = [];
+                            if (itemObj.tags.includes(t)) {
+                                itemObj.tags = itemObj.tags.filter(x => x !== t);
+                            } else {
+                                itemObj.tags.push(t);
+                            }
+                            saveState();
+                            renderBoard();
+                            renderEditorItemsList();
+                        });
+                    });
+
+                    row.querySelector('.btn-toggle-soldout').addEventListener('click', () => {
+                        itemObj.soldOut = !itemObj.soldOut;
+                        saveState();
+                        renderBoard();
+                        renderEditorItemsList();
+                        showToast(itemObj.soldOut ? `"${itemObj.name}" marked Sold Out` : `"${itemObj.name}" back in stock`);
+                    });
+
+                    row.querySelector('.btn-delete-item').addEventListener('click', () => {
+                        cat.items = cat.items.filter(i => i.id !== itemId);
+                        saveState();
+                        renderBoard();
+                        renderEditorItemsList();
+                        showToast('Menu item removed');
+                    });
+                });
+            }
+
+            function renderEditorPizzasList() {
+                const cfg = state.pizzaConfig || {};
+                document.getElementById('input-garlic-bread').value = cfg.garlicBread || '';
+                document.getElementById('input-pizza-subtitle').value = cfg.subtitle || '';
+                document.getElementById('input-pizza-toppings').value = cfg.toppingsNote || '';
+
+                elEditorPizzasList.innerHTML = state.pizzas.map(pz => `
+                    <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-2.5" data-pizza-id="${escapeHtml(pz.id)}">
+                        <div class="grid grid-cols-12 gap-2">
+                            <input type="text" data-field="name" value="${escapeHtml(pz.name)}" class="pizza-edit-input col-span-6 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Pizza Name">
+                            <input type="text" data-field="p10" value="${escapeHtml(pz.p10)}" class="pizza-edit-input col-span-2 px-2 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-xs font-bold text-center focus:outline-none focus:border-amber-500" placeholder='10"'>
+                            <input type="text" data-field="p12" value="${escapeHtml(pz.p12)}" class="pizza-edit-input col-span-2 px-2 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-xs font-bold text-center focus:outline-none focus:border-amber-500" placeholder='12"'>
+                            <input type="text" data-field="p16" value="${escapeHtml(pz.p16)}" class="pizza-edit-input col-span-2 px-2 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-xs font-bold text-center focus:outline-none focus:border-amber-500" placeholder='16"'>
+                        </div>
+                        <input type="text" data-field="desc" value="${escapeHtml(pz.desc)}" class="pizza-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs focus:outline-none focus:border-amber-500" placeholder="Toppings description">
+                        <div class="flex items-center justify-between pt-1">
+                            <button type="button" class="btn-pizza-soldout px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${pz.soldOut ? 'bg-rose-600/20 border-rose-500 text-rose-300' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}">
+                                ${pz.soldOut ? 'Marked Sold Out' : 'Mark Sold Out'}
+                            </button>
+                            <button type="button" class="btn-delete-pizza px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-rose-600 text-zinc-400 hover:text-white text-xs font-bold transition cursor-pointer">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                elEditorPizzasList.querySelectorAll('[data-pizza-id]').forEach(card => {
+                    const pzObj = state.pizzas.find(p => p.id === card.dataset.pizzaId);
+                    if (!pzObj) return;
+
+                    card.querySelectorAll('.pizza-edit-input').forEach(inp => {
+                        inp.addEventListener('input', () => {
+                            pzObj[inp.dataset.field] = inp.value;
+                            saveState();
+                            renderBoard();
+                        });
+                    });
+
+                    card.querySelector('.btn-pizza-soldout').addEventListener('click', () => {
+                        pzObj.soldOut = !pzObj.soldOut;
+                        saveState();
+                        renderBoard();
+                        renderEditorPizzasList();
+                    });
+
+                    card.querySelector('.btn-delete-pizza').addEventListener('click', () => {
+                        state.pizzas = state.pizzas.filter(p => p.id !== pzObj.id);
+                        saveState();
+                        renderBoard();
+                        renderEditorPizzasList();
+                        showToast('Pizza removed');
+                    });
+                });
+            }
+
+            function renderEditorDealsList() {
+                elEditorDealsList.innerHTML = state.mealDeals.map(deal => `
+                    <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-2.5" data-deal-id="${escapeHtml(deal.id)}">
+                        <div class="grid grid-cols-12 gap-2">
+                            <input type="text" data-field="name" value="${escapeHtml(deal.name)}" class="deal-edit-input col-span-8 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Meal Deal Name">
+                            <input type="text" data-field="price" value="${escapeHtml(deal.price)}" class="deal-edit-input col-span-4 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Price">
+                        </div>
+                        <input type="text" data-field="desc" value="${escapeHtml(deal.desc)}" class="deal-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs focus:outline-none focus:border-amber-500" placeholder="Included items (optional)">
+                        <div class="flex items-center justify-between gap-2 pt-1">
+                            <div class="flex items-center gap-2">
+                                <button type="button" class="btn-deal-featured px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${deal.featured ? 'bg-amber-500/20 border-amber-500 text-amber-300' : 'bg-zinc-800 border-zinc-700 text-zinc-400'}">
+                                    ${deal.featured ? '★ Featured' : 'Mark Featured'}
+                                </button>
+                                <button type="button" class="btn-deal-soldout px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${deal.soldOut ? 'bg-rose-600/20 border-rose-500 text-rose-300' : 'bg-zinc-800 border-zinc-700 text-zinc-300'}">
+                                    ${deal.soldOut ? 'Sold Out' : 'In Stock'}
+                                </button>
+                            </div>
+                            <button type="button" class="btn-delete-deal px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-rose-600 text-zinc-400 hover:text-white text-xs font-bold transition cursor-pointer">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                elEditorDealsList.querySelectorAll('[data-deal-id]').forEach(card => {
+                    const dealObj = state.mealDeals.find(d => d.id === card.dataset.dealId);
+                    if (!dealObj) return;
+
+                    card.querySelectorAll('.deal-edit-input').forEach(inp => {
+                        inp.addEventListener('input', () => {
+                            dealObj[inp.dataset.field] = inp.value;
+                            saveState();
+                            renderBoard();
+                        });
+                    });
+
+                    card.querySelector('.btn-deal-featured').addEventListener('click', () => {
+                        dealObj.featured = !dealObj.featured;
+                        saveState();
+                        renderBoard();
+                        renderEditorDealsList();
+                    });
+
+                    card.querySelector('.btn-deal-soldout').addEventListener('click', () => {
+                        dealObj.soldOut = !dealObj.soldOut;
+                        saveState();
+                        renderBoard();
+                        renderEditorDealsList();
+                    });
+
+                    card.querySelector('.btn-delete-deal').addEventListener('click', () => {
+                        state.mealDeals = state.mealDeals.filter(d => d.id !== dealObj.id);
+                        saveState();
+                        renderBoard();
+                        renderEditorDealsList();
+                        showToast('Meal deal removed');
+                    });
+                });
+            }
+
+            function renderEditorPromosList() {
+                if (state.promos.length === 0) {
+                    elEditorPromosList.innerHTML = '<div class="text-center text-sm text-zinc-500 py-8 border border-dashed border-zinc-800 rounded-2xl">No spotlight slides. Click "+ Add Slide" to create one.</div>';
+                    return;
+                }
+
+                elEditorPromosList.innerHTML = state.promos.map((slide, idx) => `
+                    <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 space-y-3" data-promo-id="${escapeHtml(slide.id)}">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400">Slide #${idx + 1}</span>
+                            <button type="button" class="btn-delete-promo px-3 py-1 rounded-lg bg-zinc-800 hover:bg-rose-600 text-zinc-400 hover:text-white text-xs font-bold transition cursor-pointer">
+                                Remove Slide
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <input type="text" data-field="eyebrow" value="${escapeHtml(slide.eyebrow)}" class="promo-edit-input sm:col-span-2 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-xs font-bold focus:outline-none focus:border-amber-500" placeholder="Badge Label (e.g. Lunch Deal)">
+                            <input type="text" data-field="price" value="${escapeHtml(slide.price)}" class="promo-edit-input px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-amber-400 text-sm font-bold focus:outline-none focus:border-amber-500" placeholder="Price (e.g. 15.00)">
+                        </div>
+                        <input type="text" data-field="title" value="${escapeHtml(slide.title)}" class="promo-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm font-extrabold focus:outline-none focus:border-amber-500" placeholder="Headline Title">
+                        <input type="text" data-field="desc" value="${escapeHtml(slide.desc)}" class="promo-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs focus:outline-none focus:border-amber-500" placeholder="Deal details...">
+                        <input type="text" data-field="footnote" value="${escapeHtml(slide.footnote)}" class="promo-edit-input w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-400 text-xs focus:outline-none focus:border-amber-500" placeholder="Small print / availability times">
+                    </div>
+                `).join('');
+
+                elEditorPromosList.querySelectorAll('[data-promo-id]').forEach(card => {
+                    const promoId = card.dataset.promoId;
+                    const slideObj = state.promos.find(p => p.id === promoId);
+                    if (!slideObj) return;
+
+                    card.querySelectorAll('.promo-edit-input').forEach(inp => {
+                        inp.addEventListener('input', () => {
+                            slideObj[inp.dataset.field] = inp.value;
+                            saveState();
+                            renderActivePromo();
+                        });
+                    });
+
+                    card.querySelector('.btn-delete-promo').addEventListener('click', () => {
+                        state.promos = state.promos.filter(p => p.id !== promoId);
+                        activePromoIndex = 0;
+                        promoElapsedMs = 0;
+                        saveState();
+                        renderActivePromo();
+                        renderEditorPromosList();
+                        showToast('Spotlight slide removed');
+                    });
+                });
+            }
+
+            // ---------------------------------------------------------
+            // 10. EVENT BINDINGS
+            // ---------------------------------------------------------
+            function bindEvents() {
+                // Screen Navigation Switcher
+                document.querySelectorAll('.screen-nav-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        activeScreen = Number(btn.dataset.screen);
+                        screenElapsedMs = 0;
+                        applyScreenVisibility();
+                    });
+                });
+
+                document.getElementById('btn-toggle-rotate').addEventListener('click', () => {
+                    if (Number(state.autoRotateSec) === 0) {
+                        state.autoRotateSec = 18;
+                        isAutoRotatePaused = false;
+                        saveState();
+                    } else {
+                        isAutoRotatePaused = !isAutoRotatePaused;
+                    }
+                    screenElapsedMs = 0;
+                    applyScreenVisibility();
+                    showToast(isAutoRotatePaused ? 'Screen locked to current board' : `Auto-rotating every ${state.autoRotateSec}s`);
+                });
+
+                // Toolbar Controls
+                document.getElementById('btn-cycle-theme').addEventListener('click', cycleTheme);
+                document.getElementById('btn-open-editor').addEventListener('click', openEditor);
+                document.getElementById('btn-close-editor').addEventListener('click', closeEditor);
+                document.getElementById('btn-done-editor').addEventListener('click', closeEditor);
+                document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+                document.addEventListener('fullscreenchange', syncFullscreenIcons);
+
+                // Close editor when clicking backdrop
+                elEditorBackdrop.addEventListener('click', (e) => {
+                    if (e.target === elEditorBackdrop) closeEditor();
+                });
+
+                // Editor Tabs
+                document.querySelectorAll('.editor-tab').forEach(btn => {
+                    btn.addEventListener('click', () => switchEditorTab(btn.dataset.tab));
+                });
+
+                // Theme Switcher Buttons
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        state.theme = btn.dataset.theme;
+                        saveState();
+                        populateGeneralFields();
+                        renderBoard();
+                        showToast('Display theme updated');
+                    });
+                });
+
+                // General Branding Inputs
+                elInputBrandName.addEventListener('input', () => { state.brandName = elInputBrandName.value; saveState(); renderBoard(); });
+                elInputBrandTagline.addEventListener('input', () => { state.tagline = elInputBrandTagline.value; saveState(); renderBoard(); });
+                elInputPhone.addEventListener('input', () => { state.phone = elInputPhone.value; saveState(); renderBoard(); });
+                elInputCurrency.addEventListener('change', () => { state.currency = elInputCurrency.value; saveState(); renderBoard(); });
+                elInputRotateSec.addEventListener('change', () => {
+                    state.autoRotateSec = Number(elInputRotateSec.value);
+                    isAutoRotatePaused = false;
+                    screenElapsedMs = 0;
+                    saveState();
+                    applyScreenVisibility();
+                });
+                elInputFooterNote.addEventListener('input', () => { state.footerNote = elInputFooterNote.value; saveState(); renderBoard(); });
+
+                // Category Selector, Rename & Subtitle
+                elSelectEditCat.addEventListener('change', () => {
+                    selectedCategoryId = elSelectEditCat.value;
+                    const cat = state.categories.find(c => c.id === selectedCategoryId);
+                    elInputCatTitle.value = cat ? cat.title : '';
+                    elInputCatSubtitle.value = cat ? (cat.subtitle || '') : '';
+                    renderEditorItemsList();
+                });
+
+                elInputCatTitle.addEventListener('input', () => {
+                    const cat = state.categories.find(c => c.id === selectedCategoryId);
+                    if (cat) {
+                        cat.title = elInputCatTitle.value;
+                        const opt = elSelectEditCat.querySelector(`option[value="${cat.id}"]`);
+                        if (opt) opt.textContent = `${cat.title} (Screen ${cat.screen + 1})`;
+                        saveState();
+                        renderBoard();
+                    }
+                });
+
+                elInputCatSubtitle.addEventListener('input', () => {
+                    const cat = state.categories.find(c => c.id === selectedCategoryId);
+                    if (cat) {
+                        cat.subtitle = elInputCatSubtitle.value;
+                        saveState();
+                        renderBoard();
+                    }
+                });
+
+                // Pizza Config Inputs & Add Pizza
+                document.getElementById('input-garlic-bread').addEventListener('input', (e) => {
+                    state.pizzaConfig.garlicBread = e.target.value; saveState(); renderBoard();
+                });
+                document.getElementById('input-pizza-subtitle').addEventListener('input', (e) => {
+                    state.pizzaConfig.subtitle = e.target.value; saveState(); renderBoard();
+                });
+                document.getElementById('input-pizza-toppings').addEventListener('input', (e) => {
+                    state.pizzaConfig.toppingsNote = e.target.value; saveState(); renderBoard();
+                });
+                document.getElementById('btn-add-pizza').addEventListener('click', () => {
+                    state.pizzas.push({
+                        id: 'pz_' + Date.now(),
+                        name: 'New Special Pizza',
+                        desc: 'Tomato Sauce, Mozzarella & Choice of Toppings',
+                        p10: '8', p12: '10', p16: '13',
+                        tags: [], soldOut: false
+                    });
+                    saveState();
+                    renderBoard();
+                    renderEditorPizzasList();
+                    showToast('New pizza added');
+                });
+
+                // Add Meal Deal
+                document.getElementById('btn-add-deal').addEventListener('click', () => {
+                    state.mealDeals.push({
+                        id: 'md_' + Date.now(),
+                        name: 'New Meal Deal',
+                        desc: 'Served with Chips & Drink',
+                        price: '7.50',
+                        featured: false,
+                        soldOut: false
+                    });
+                    saveState();
+                    renderBoard();
+                    renderEditorDealsList();
+                    showToast('New meal deal added');
+                });
+
+                // Add New Menu Item
+                document.getElementById('btn-add-item').addEventListener('click', () => {
+                    const nameInput = document.getElementById('new-item-name');
+                    const priceInput = document.getElementById('new-item-price');
+                    const descInput = document.getElementById('new-item-desc');
+                    const name = nameInput.value.trim();
+
+                    if (!name) {
+                        showToast('Please enter an item name first');
+                        nameInput.focus();
+                        return;
+                    }
+
+                    const cat = state.categories.find(c => c.id === selectedCategoryId);
+                    if (!cat) return;
+
+                    const selectedTags = Array.from(document.querySelectorAll('.new-item-tag:checked')).map(cb => cb.value);
+
+                    cat.items.push({
+                        id: 'item_' + Date.now(),
+                        name,
+                        price: priceInput.value.trim(),
+                        desc: descInput.value.trim(),
+                        tags: selectedTags,
+                        soldOut: false
+                    });
+
+                    // Clear inputs
+                    nameInput.value = '';
+                    priceInput.value = '';
+                    descInput.value = '';
+                    document.querySelectorAll('.new-item-tag').forEach(cb => { cb.checked = false; });
+
+                    saveState();
+                    renderBoard();
+                    renderEditorItemsList();
+                    showToast(`Added "${name}" to ${cat.title}`);
+                });
+
+                // Add New Spotlight Slide
+                document.getElementById('btn-add-promo').addEventListener('click', () => {
+                    state.promos.push({
+                        id: 'promo_' + Date.now(),
+                        eyebrow: 'Daily Special',
+                        title: 'New Featured Offer',
+                        desc: 'Describe your combo meal, seasonal drink, or happy hour deal here.',
+                        footnote: 'Available Today Only',
+                        price: '12.00'
+                    });
+                    activePromoIndex = state.promos.length - 1;
+                    promoElapsedMs = 0;
+                    saveState();
+                    renderActivePromo();
+                    renderEditorPromosList();
+                    showToast('New spotlight slide added');
+                });
+
+                // Reset Flow (Inline Confirmation)
+                const btnResetReq = document.getElementById('btn-reset-request');
+                const resetConfirmBox = document.getElementById('reset-confirm-box');
+
+                btnResetReq.addEventListener('click', () => {
+                    btnResetReq.classList.add('hidden');
+                    resetConfirmBox.classList.remove('hidden');
+                });
+
+                document.getElementById('btn-reset-cancel').addEventListener('click', () => {
+                    resetConfirmBox.classList.add('hidden');
+                    btnResetReq.classList.remove('hidden');
+                });
+
+                document.getElementById('btn-reset-confirm').addEventListener('click', () => {
+                    state = deepClone(DEFAULT_STATE);
+                    activePromoIndex = 0;
+                    promoElapsedMs = 0;
+                    screenElapsedMs = 0;
+                    selectedCategoryId = state.categories[0].id;
+                    saveState();
+                    renderBoard();
+                    populateGeneralFields();
+                    populateCategorySelect();
+                    renderEditorItemsList();
+                    renderEditorPizzasList();
+                    renderEditorDealsList();
+                    renderEditorPromosList();
+                    resetConfirmBox.classList.add('hidden');
+                    btnResetReq.classList.remove('hidden');
+                    showToast('Menu reset to takeaway menu');
+                });
+
+                // Keyboard Shortcuts (Ignore when typing inside inputs)
+                document.addEventListener('keydown', (e) => {
+                    const tag = e.target.tagName;
+                    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+                        if (e.key === 'Escape') closeEditor();
+                        return;
+                    }
+                    if (e.key === '1' || e.key === '2' || e.key === '3') {
+                        activeScreen = Number(e.key) - 1;
+                        screenElapsedMs = 0;
+                        applyScreenVisibility();
+                    } else if (e.key === ' ') {
+                        e.preventDefault();
+                        isAutoRotatePaused = !isAutoRotatePaused;
+                        applyScreenVisibility();
+                        showToast(isAutoRotatePaused ? 'Screen locked' : 'Auto-rotation resumed');
+                    } else if (e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                        if (elEditorBackdrop.classList.contains('hidden')) openEditor();
+                        else closeEditor();
+                    } else if (e.key === 'f' || e.key === 'F') {
+                        e.preventDefault();
+                        toggleFullscreen();
+                    } else if (e.key === 't' || e.key === 'T') {
+                        e.preventDefault();
+                        cycleTheme();
+                    } else if (e.key === 'Escape' && !elEditorBackdrop.classList.contains('hidden')) {
+                        closeEditor();
+                    }
+                });
+
+                // Activity listeners for idle auto-fade
+                ['mousemove', 'touchstart', 'click'].forEach(evt => {
+                    document.addEventListener(evt, resetIdleTimer, { passive: true });
+                });
+            }
+
+            // ---------------------------------------------------------
+            // 11. BOOTSTRAP APPLICATION
+            // ---------------------------------------------------------
+            function init() {
+                updateClock();
+                setInterval(updateClock, 1000);
+                renderBoard();
+                bindEvents();
+                startPromoLoop();
+                resetIdleTimer();
+            }
+
+            window.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+</body>
+</html>
